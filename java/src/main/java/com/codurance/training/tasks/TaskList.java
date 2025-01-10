@@ -1,7 +1,6 @@
 package com.codurance.training.tasks;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +8,7 @@ import java.util.Map;
 public final class TaskList {
     private static final String QUIT = "quit";
 
-    private final Map<String, List<Task>> tasks = new LinkedHashMap<>();
+    private final Map<String, Tasks> tasks = new LinkedHashMap<>();
     private final Writer writer;
 
     private long lastId = 0;
@@ -24,7 +23,6 @@ public final class TaskList {
     public TaskList(Writer writer) {
         this.writer = writer;
     }
-
 
     public void execute(String commandLine) throws IOException {
         String[] commandRest = commandLine.split(" ", 2);
@@ -49,12 +47,13 @@ public final class TaskList {
     }
 
     private void show() throws IOException {
-        for (Map.Entry<String, List<Task>> project : tasks.entrySet()) {
+        for (Map.Entry<String, Tasks> project : tasks.entrySet()) {
             writer.write(project.getKey());
             writer.write("\n");
-            List<Task> tasks = project.getValue();
-            writeTasks(tasks,writer);
-        }}
+            List<Task> taskList = project.getValue();
+            writeTasks(taskList, writer);
+        }
+    }
 
     private static void writeTasks(List<Task> tasks, Writer writer) throws IOException {
         for (Task task : tasks) {
@@ -74,11 +73,11 @@ public final class TaskList {
     }
 
     private void addProject(String name) {
-        tasks.put(name, new ArrayList<Task>());
+        tasks.put(name, new Tasks());
     }
 
     private void addTask(String project, String description) throws IOException {
-        List<Task> projectTasks = tasks.get(project);
+        Tasks projectTasks = tasks.get(project);
         if (projectTasks == null) {
             writer.write("Could not find a project with the name \"%s\".");
             writer.write("\n");
@@ -97,12 +96,12 @@ public final class TaskList {
 
     private void setDone(String idString, boolean done) throws IOException {
         int id = Integer.parseInt(idString);
-        for (Map.Entry<String, List<Task>> project : tasks.entrySet()) {
-            for (Task task : project.getValue()) {
-                if (task.getId() == id) {
-                    task.setDone(done);
-                    return;
-                }
+        for (Map.Entry<String, Tasks> project : tasks.entrySet()) {
+            Tasks projectTasks = project.getValue();
+            if (done) {
+                projectTasks.markTaskAsDone(id);
+            } else {
+                projectTasks.markTaskAsUndone(id);
             }
         }
         writer.write("Could not find a task with an ID of %d.");
@@ -110,7 +109,6 @@ public final class TaskList {
     }
 
     private void error(String command) {
-
     }
 
     private long nextId() {

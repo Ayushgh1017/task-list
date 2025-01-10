@@ -30,4 +30,12 @@ public final class Task {
     public void setDone(boolean done) {
         this.done = done;
     }
+
+    public void markAsDone() {
+        this.done = true;
+    }
+
+    public void markAsUndone() {
+        this.done = false;
+    }
 }
