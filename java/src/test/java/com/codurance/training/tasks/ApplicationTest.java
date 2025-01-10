@@ -1,11 +1,7 @@
 package com.codurance.training.tasks;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.PrintWriter;
+import java.io.*;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,10 +21,11 @@ public final class ApplicationTest {
     private Thread applicationThread;
 
     public ApplicationTest() throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(new PipedInputStream(inStream)));
-        PrintWriter out = new PrintWriter(new PipedOutputStream(outStream), true);
-        TaskList taskList = new TaskList(in, out);
-        applicationThread = new Thread(taskList);
+        PipedOutputStream outStream = new PipedOutputStream();
+        Writer writer = new PrintWriter(outStream, true);
+        TaskList taskList = new TaskList(writer);
+
+        applicationThread = new Thread(String.valueOf(taskList));
     }
 
     @Before public void
