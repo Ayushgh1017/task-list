@@ -1,23 +1,24 @@
 package com.codurance.training.tasks;
 
 import java.io.*;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 public final class TaskList {
     private static final String QUIT = "quit";
 
-    private final Map<String, Tasks> tasks = new LinkedHashMap<>();
+    private final Projects projects = new Projects();
     private final Writer writer;
 
     private long lastId = 0;
 
     public static void main(String[] args) throws Exception {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        String command = in.readLine();
-        PrintWriter out = new PrintWriter(System.out);
-        new TaskList(out).execute(command);
+        PrintWriter out = new PrintWriter(System.out, true);
+        TaskList taskList = new TaskList(out);
+
+        String command;
+        while (!(command = in.readLine()).equals(QUIT)) {
+            taskList.execute(command);
+        }
     }
 
     public TaskList(Writer writer) {
@@ -35,80 +36,41 @@ public final class TaskList {
                 add(commandRest[1]);
                 break;
             case "check":
-                check(commandRest[1]);
+                setTaskStatus(commandRest[1], true);
                 break;
             case "uncheck":
-                uncheck(commandRest[1]);
+                setTaskStatus(commandRest[1], false);
                 break;
             default:
-                error(command);
+                writer.write(String.format("Unknown command: %s%n", command));
                 break;
         }
     }
 
     private void show() throws IOException {
-        for (Map.Entry<String, Tasks> project : tasks.entrySet()) {
-            writer.write(project.getKey());
-            writer.write("\n");
-            List<Task> taskList = project.getValue();
-            writeTasks(taskList, writer);
-        }
-    }
-
-    private static void writeTasks(List<Task> tasks, Writer writer) throws IOException {
-        for (Task task : tasks) {
-            writer.write(task.getFormat());
-        }
+        projects.displayProjects(writer);
     }
 
     private void add(String commandLine) throws IOException {
         String[] subcommandRest = commandLine.split(" ", 2);
         String subcommand = subcommandRest[0];
-        if (subcommand.equals("project")) {
-            addProject(subcommandRest[1]);
-        } else if (subcommand.equals("task")) {
+        if ("project".equals(subcommand)) {
+            projects.addProject(subcommandRest[1]);
+        } else if ("task".equals(subcommand)) {
             String[] projectTask = subcommandRest[1].split(" ", 2);
-            addTask(projectTask[0], projectTask[1]);
+            String projectName = projectTask[0];
+            String description = projectTask[1];
+            Task task = new Task(nextId(), description, false);
+            projects.addTaskToProject(projectName, task, writer);
         }
     }
 
-    private void addProject(String name) {
-        tasks.put(name, new Tasks());
-    }
-
-    private void addTask(String project, String description) throws IOException {
-        Tasks projectTasks = tasks.get(project);
-        if (projectTasks == null) {
-            writer.write("Could not find a project with the name \"%s\".");
-            writer.write("\n");
-            return;
+    private void setTaskStatus(String idString, boolean done) throws IOException {
+        long id = Long.parseLong(idString);
+        boolean updated = projects.setTaskStatus(id, done);
+        if (!updated) {
+            writer.write(String.format("Could not find a task with an ID of %d.%n", id));
         }
-        projectTasks.add(new Task(nextId(), description, false));
-    }
-
-    private void check(String idString) throws IOException {
-        setDone(idString, true);
-    }
-
-    private void uncheck(String idString) throws IOException {
-        setDone(idString, false);
-    }
-
-    private void setDone(String idString, boolean done) throws IOException {
-        int id = Integer.parseInt(idString);
-        for (Map.Entry<String, Tasks> project : tasks.entrySet()) {
-            Tasks projectTasks = project.getValue();
-            if (done) {
-                projectTasks.markTaskAsDone(id);
-            } else {
-                projectTasks.markTaskAsUndone(id);
-            }
-        }
-        writer.write("Could not find a task with an ID of %d.");
-        writer.write("\n");
-    }
-
-    private void error(String command) {
     }
 
     private long nextId() {
