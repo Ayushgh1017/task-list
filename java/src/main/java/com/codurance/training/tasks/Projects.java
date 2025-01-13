@@ -23,7 +23,7 @@ public class Projects extends LinkedHashMap<String, Tasks> {
     public void displayProjects(Writer writer) throws IOException {
         for (Map.Entry<String, Tasks> entry : this.entrySet()) {
             writer.write(entry.getKey());
-            writer.write("\n");
+            writer.write("\r\n");
             displayTasks(entry.getValue(), writer);
         }
     }
@@ -36,15 +36,12 @@ public class Projects extends LinkedHashMap<String, Tasks> {
 
     public boolean setTaskStatus(long taskId, boolean done) {
         for (Tasks tasks : this.values()) {
-            Task task = tasks.stream().filter(t -> t.getId() == taskId).findFirst().orElse(null);
-            if (task != null) {
-                if (done) {
-                    task.markAsDone();
-                } else {
-                    task.markAsUndone();
-                }
-                return true;
+            if (done) {
+                tasks.markTaskAsDone(taskId);
+            } else {
+                tasks.markTaskAsUndone(taskId);
             }
+            return true;
         }
         return false;
     }

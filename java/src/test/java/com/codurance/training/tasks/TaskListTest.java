@@ -1,10 +1,10 @@
 package com.codurance.training.tasks;
 
-
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.StringWriter;
+
+import static org.junit.Assert.assertEquals;
 
 public class TaskListTest {
 
@@ -12,14 +12,13 @@ public class TaskListTest {
     public void testExecuteWithAdditionOfAProjectContainingOneTask() throws Exception {
         StringWriter writer = new StringWriter();
         TaskList taskList = new TaskList(writer);
-        taskList.execute("add project caizin");
-        taskList.execute("add task caizin Task1");
-        taskList.execute("show");
 
-        String expected = "caizin\n" + "[ ] 1: Task1" + "\r\n";
+        taskList.execute("add project caizin", writer);
+        taskList.execute("add task caizin Task1", writer);
+        taskList.execute("show", writer);
 
-        Assert.assertEquals(expected, writer.toString());
+        String expected = "caizin\r\n" +
+                "[ ] 1: Task1\r\n";
+        assertEquals(expected, writer.toString());
     }
-
-
 }
