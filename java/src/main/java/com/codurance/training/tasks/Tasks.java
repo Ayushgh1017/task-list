@@ -3,6 +3,11 @@ package com.codurance.training.tasks;
 import java.util.ArrayList;
 
 public class Tasks extends ArrayList<Task> {
+
+    public void addTask(Task task) {
+        this.add(task);
+    }
+
     public void markTaskAsDone(long id) {
         Task task = findTaskById(id);
         if (task != null) {

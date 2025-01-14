@@ -17,7 +17,7 @@ public class Projects extends LinkedHashMap<String, Tasks> {
             writer.write(String.format("Could not find a project with the name \"%s\".%n", projectName));
             return;
         }
-        tasks.add(task);
+        tasks.addTask(task);
     }
 
     public void displayProjects(Writer writer) throws IOException {
