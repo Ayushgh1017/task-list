@@ -11,7 +11,6 @@ public class AddCommandTest {
 
     @Test
     public void testAddProject() throws Exception {
-        // Arrange
         Projects projects = new Projects();
         StringWriter writer = new StringWriter();
         AddCommand addCommand = new AddCommand();
