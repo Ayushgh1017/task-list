@@ -1,8 +1,9 @@
 package com.codurance.training.tasks;
 
-import com.codurance.training.tasks.commands.Command;
 import com.codurance.training.tasks.commands.CommandContext;
+import com.codurance.training.tasks.commands.CommandParser;
 import com.codurance.training.tasks.commands.CommandRegistry;
+import com.codurance.training.tasks.commands.ParsedCommand;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,10 +16,12 @@ public final class TaskList {
 
     private final Projects projects;
     private final CommandRegistry commandRegistry;
+    private final CommandParser commandParser;
 
     public TaskList(Writer writer) {
         this.projects = new Projects();
         this.commandRegistry = new CommandRegistry(projects);
+        this.commandParser = new CommandParser(commandRegistry); // Instantiate CommandParser
     }
 
     public static void main(String[] args) throws IOException {
@@ -33,17 +36,12 @@ public final class TaskList {
     }
 
     public void execute(String commandLine, Writer writer) throws IOException {
-        String[] commandParts = commandLine.split(" ", 2);
-        String commandName = commandParts[0];
-        String arguments = commandParts.length > 1 ? commandParts[1] : "";
-
-        Command command = commandRegistry.getCommand(commandName);
-        if (command == null) {
-            writer.write(String.format("Unknown command: %s%n", commandName));
-            return;
+        try {
+            ParsedCommand parsedCommand = commandParser.parse(commandLine, projects);
+            CommandContext context = new CommandContext(projects, writer, parsedCommand);
+            parsedCommand.getCommand().execute(context);
+        } catch (IllegalArgumentException e) {
+            writer.write(e.getMessage() + System.lineSeparator());
         }
-
-        CommandContext context = new CommandContext(projects, writer, arguments);
-        command.execute(context);
     }
 }

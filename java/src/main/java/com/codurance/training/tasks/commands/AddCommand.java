@@ -9,18 +9,36 @@ import java.io.IOException;
 public class AddCommand implements Command {
     @Override
     public void execute(CommandContext context) throws IOException {
-        String arguments = context.getArguments();
-        String[] subcommandRest = arguments.split(" ", 2);
-        String subcommand = subcommandRest[0];
+        ParsedCommand parsedCommand = context.getCommand();
+        String[] parsedArguments = parsedCommand.getArguments().split(" ");
+
+        if (parsedArguments.length < 2) {
+            context.getWriter().write("Invalid arguments for add command. Usage: add project <projectName> or add task <projectName> <taskDescription>\n");
+            return;
+        }
+
+        String subcommand = parsedArguments[0];
         Projects projects = context.getProjects();
+
         if ("project".equals(subcommand)) {
-            projects.addProject(subcommandRest[1]);
+            if (parsedArguments.length < 2) {
+                context.getWriter().write("Project name is missing. Usage: add project <projectName>\n");
+                return;
+            }
+            String projectName = parsedArguments[1];
+            projects.addProject(projectName);
         } else if ("task".equals(subcommand)) {
-            String[] projectTask = subcommandRest[1].split(" ", 2);
-            String projectName = projectTask[0];
-            String description = projectTask[1];
+            if (parsedArguments.length < 3) {
+                context.getWriter().write("Invalid arguments for task. Usage: add task <projectName> <taskDescription>\n");
+                return;
+            }
+            String projectName = parsedArguments[1];
+            String description = String.join(" ", java.util.Arrays.copyOfRange(parsedArguments, 2, parsedArguments.length));
+
             Task task = new Task(IDGenerator.nextId(), description, false);
             projects.addTaskToProject(projectName, task, context.getWriter());
+        } else {
+            context.getWriter().write(String.format("Unknown subcommand: %s. Valid subcommands are 'project' and 'task'.\n", subcommand));
         }
     }
 }

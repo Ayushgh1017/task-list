@@ -1,6 +1,5 @@
 package com.codurance.training.tasks.commands;
 
-
 import com.codurance.training.tasks.Projects;
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,11 +13,12 @@ public class AddCommandTest {
         Projects projects = new Projects();
         StringWriter writer = new StringWriter();
         AddCommand addCommand = new AddCommand();
-        CommandContext context = new CommandContext(projects, writer, "project TestProject");
+
+        ParsedCommand parsedCommand = new ParsedCommand(addCommand, "project TestProject");
+        CommandContext context = new CommandContext(projects, writer, parsedCommand);
 
         addCommand.execute(context);
 
         Assert.assertTrue(projects.containsKey("TestProject"));
     }
-
 }

@@ -1,7 +1,6 @@
 package com.codurance.training.tasks.commands;
 
 import com.codurance.training.tasks.Projects;
-import com.codurance.training.tasks.commands.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,8 +11,8 @@ public class CommandRegistry {
     public CommandRegistry(Projects projects) {
         commands.put("show", new ShowCommand());
         commands.put("add", new AddCommand());
-        commands.put("check", new SetTaskStatusCommand(true));
-        commands.put("uncheck", new SetTaskStatusCommand(false));
+        commands.put("check", new MarkTaskAsDoneCommand());
+        commands.put("uncheck", new MarkTaskAsUndoneCommand());
     }
 
     public Command getCommand(String commandName) {

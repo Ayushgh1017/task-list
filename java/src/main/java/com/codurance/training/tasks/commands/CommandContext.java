@@ -7,12 +7,12 @@ import java.io.Writer;
 public class CommandContext {
     private final Projects projects;
     private final Writer writer;
-    private final String arguments;
+    private final ParsedCommand command;
 
-    public CommandContext(Projects projects, Writer writer, String arguments) {
+    public CommandContext(Projects projects, Writer writer, ParsedCommand command) {
         this.projects = projects;
         this.writer = writer;
-        this.arguments = arguments;
+        this.command = command;
     }
 
     public Projects getProjects() {
@@ -23,7 +23,23 @@ public class CommandContext {
         return writer;
     }
 
+    public ParsedCommand getCommand() {
+        return command;
+    }
+
     public String getArguments() {
-        return arguments;
+        return command.getArguments();
+    }
+
+    public String[] getParsedArguments() {
+        return command.getArguments().split(" ");
+    }
+
+    public String getArgumentAt(int index) {
+        String[] parsedArguments = getParsedArguments();
+        if (index >= 0 && index < parsedArguments.length) {
+            return parsedArguments[index];
+        }
+        return null;
     }
 }

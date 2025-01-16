@@ -14,7 +14,7 @@ public class Projects extends LinkedHashMap<String, Tasks> {
     public void addTaskToProject(String projectName, Task task, Writer writer) throws IOException {
         Tasks tasks = this.get(projectName);
         if (tasks == null) {
-            writer.write(String.format("Could not find a project with the name \"%s\".%n", projectName));
+            writer.write(String.format("Could not find a project with this name"));
             return;
         }
         tasks.addTask(task);
@@ -34,13 +34,17 @@ public class Projects extends LinkedHashMap<String, Tasks> {
         }
     }
 
-    public boolean setTaskStatus(long taskId, boolean done) {
+    public boolean markTaskAsDone(long taskId) {
         for (Tasks tasks : this.values()) {
-            if (done) {
-                tasks.markTaskAsDone(taskId);
-            } else {
-                tasks.markTaskAsUndone(taskId);
-            }
+            tasks.markTaskAsDone(taskId);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean markTaskAsUndone(long taskId) {
+        for (Tasks tasks : this.values()) {
+            tasks.markTaskAsUndone(taskId);
             return true;
         }
         return false;
